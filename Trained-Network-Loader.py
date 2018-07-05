@@ -1,34 +1,18 @@
-import numpy as np
 from matplotlib import pyplot as plt
-
-np.random.seed(123)  # for reproducibility
-
-# Importing the sequential model from Keras
-from keras.models import Sequential
-
-# Importing core layers from Keras
-from keras.layers import Dense, Dropout, Activation, Flatten
-
-# Importing CNN layers from Keras - they will help efficiently train on image data
-from keras.layers import Convolution2D, MaxPooling2D
-
-# Importing utilities
 from keras.utils import np_utils
-
-# Import mnist dataset
 from keras.datasets import mnist
-
 from keras.models import model_from_json
+from random import randint
 
+# Generate a random number to select from the dataset
+random = randint(0, 10000)
 
 # Load pre-shuffled MNIST data into train and test sets
 (X_train, y_train), (X_test, y_test) = mnist.load_data()
-X_test = X_test[600:601]
-y_test = y_test[600:601]
-
+X_test = X_test[random:random + 1]
+y_test = y_test[random:random + 1]
 plt.imshow(X_test[0])
 plt.show()
-print(y_test[0])
 
 # Transforming the dataset to show depth (1 colour)
 X_test = X_test[0].reshape(X_test.shape[0], 28, 28, 1)
@@ -52,8 +36,9 @@ print("Loaded model from disk")
 
 model.compile(loss='categorical_crossentropy', optimizer='Adam', metrics=['accuracy'])
 # Evaluate the model on test data
-#score = model.evaluate(X_test, Y_test, verbose=0)
-#print("%s: %.2f%%" % (model.metrics_names[1], score[1] * 100))  # Print the model metrics
+# score = model.evaluate(X_test, Y_test, verbose=0)
+# print("%s: %.2f%%" % (model.metrics_names[1], score[1] * 100))  # Print the model metrics
 
 pr = model.predict_classes(X_test)
-print(pr)
+print("Number used in this test: ", y_test[0])
+print("Network detected: ", pr[0])
