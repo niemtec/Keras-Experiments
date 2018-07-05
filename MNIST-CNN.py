@@ -47,7 +47,7 @@ Y_test = np_utils.to_categorical(y_test, 10)
 model = Sequential()
 
 # Declare input layer
-model.add(Convolution2D(32, 3, 3, activation='relu', input_shape=(28,28, 1)))
+model.add(Convolution2D(32, 3, 3, activation='relu', input_shape=(28, 28, 1)))
 
 # Adding more layers to the network
 model.add(Convolution2D(32, 3, 3, activation='relu'))
@@ -69,6 +69,7 @@ model.fit(X_train, Y_train, batch_size=32, nb_epoch=10, verbose=1)
 
 # Evaluate the model on test data
 score = model.evaluate(X_test, Y_test, verbose=0)
+print("%s: %.2f%%" % (model.metrics_names[1], score[1] * 100))  # Print the model metrics
 
 # serialize model to JSON
 model_json = model.to_json()
