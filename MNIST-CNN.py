@@ -24,6 +24,7 @@ from keras.datasets import mnist
 # Shows the shape of the dataset (demo only)
 # print (X_train.shape)
 # (60000, 28, 28)
+# (60000, 28, 28)
 
 # Plotting an image for fun
 plt.imshow(X_train[0])

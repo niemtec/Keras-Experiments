@@ -23,19 +23,21 @@ from keras.models import model_from_json
 
 # Load pre-shuffled MNIST data into train and test sets
 (X_train, y_train), (X_test, y_test) = mnist.load_data()
+X_test = X_test[600:601]
+y_test = y_test[600:601]
+
+plt.imshow(X_test[0])
+plt.show()
+print(y_test[0])
 
 # Transforming the dataset to show depth (1 colour)
-X_train = X_train.reshape(X_train.shape[0], 28, 28, 1)
-X_test = X_test.reshape(X_test.shape[0], 28, 28, 1)
+X_test = X_test[0].reshape(X_test.shape[0], 28, 28, 1)
 
 # Convert data type to float32 and normalise data values to the range [0, 1]
-X_train = X_train.astype('float32')
 X_test = X_test.astype('float32')
-X_train /= 255
 X_test /= 255
 
 # Convert 1D class arrays to 10D class matrices (10 numbers)
-Y_train = np_utils.to_categorical(y_train, 10)
 Y_test = np_utils.to_categorical(y_test, 10)
 
 # load json and create model
@@ -50,5 +52,8 @@ print("Loaded model from disk")
 
 model.compile(loss='categorical_crossentropy', optimizer='Adam', metrics=['accuracy'])
 # Evaluate the model on test data
-score = model.evaluate(X_test, Y_test, verbose=0)
-print("%s: %.2f%%" % (model.metrics_names[1], score[1] * 100))  # Print the model metrics
+#score = model.evaluate(X_test, Y_test, verbose=0)
+#print("%s: %.2f%%" % (model.metrics_names[1], score[1] * 100))  # Print the model metrics
+
+pr = model.predict_classes(X_test)
+print(pr)
