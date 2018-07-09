@@ -50,33 +50,43 @@ class Agent():
 
     # Performs an action randomly or using NN prediction from current state
     def act(self, state):
+        # Choose random action if r is less than the exploration rate (until gains experience)
         if np.random.rand() <= self.exploration_rate:
             return random.randrange(self.action_size)
         # Predict reward of current state based on the data available
         act_values = self.brain.predict(state)
+        # Return the highest value between two elements in act_values[0] e.g. [0.26, 0.04] with numbers representing the reward for picking left/right action
+        # the example above will return 0 (because 0.26 > 0.04) and the agent will move left to maximise reward
         return np.argmax(act_values[0])
 
     # Save observation from environment to memory
     def remember(self, state, action, reward, next_state, done):
+        # Experiences stored in an array called memory
         self.memory.append((state, action, reward, next_state, done))
 
     def replay(self, sample_batch_size):
         if len(self.memory) < sample_batch_size:
             return
+        # Pick a random sample from memory (avoid using up resources on going through all memory)
         sample_batch = random.sample(self.memory, sample_batch_size)
         for state, action, reward, next_state, done in sample_batch:
             target = reward
             if not done:
+                # amax returns the maximum of an array or maximum along an exist
+                # Gamma used to make agent perform better in mid/long-term plays
                 target = reward + self.gamma * np.amax(self.brain.predict(next_state)[0])
             target_f = self.brain.predict(state)
             target_f[0][action] = target
+            # Keras subtracts the target from the neural network output and squares it then it applies the learning rate defined during initialisation
             self.brain.fit(state, target_f, epochs=1, verbose=0)
+        # Decay the exploration rate over time
         if self.exploration_rate > self.exploration_min:
             self.exploration_rate *= self.exploration_decay
 
 
 class CartPole:
     def __init__(self):
+        # Limit the number of samples to takve so we avoid using up the memory
         self.sample_batch_size = 32
         # The number of games to play for training
         self.episodes = 10000
@@ -95,6 +105,7 @@ class CartPole:
                 done = False
                 index = 0
                 while not done:
+                    # Render the environment (turn off to run the training without visualisation)
                     self.env.render()
 
                     action = self.agent.act(state)
