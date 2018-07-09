@@ -14,6 +14,7 @@ from keras.optimizers import Adam
 
 class Agent():
     def __init__(self, state_size, action_size):
+        # Name of the weight backup
         self.weight_backup = "cartpole_weight.h5"
         self.state_size = state_size
         self.action_size = action_size
@@ -96,7 +97,9 @@ class CartPole:
         self.episodes = 10000
         self.env = gym.make('CartPole-v1')
 
+        # Specify the observation space
         self.state_size = self.env.observation_space.shape[0]
+        # Specify the number of actions
         self.action_size = self.env.action_space.n
         self.agent = Agent(self.state_size, self.action_size)
 
@@ -110,7 +113,7 @@ class CartPole:
                 index = 0
                 while not done:
                     # Render the environment (turn off to run the training without visualisation)
-                    self.env.render()
+                    #  self.env.render()
 
                     action = self.agent.act(state)
 
