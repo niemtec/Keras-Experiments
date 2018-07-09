@@ -1,3 +1,7 @@
+# OpenAI Gym Cart Pole Evironment - Using Keras and Q Learning
+# Tutorial used: https://medium.com/@gtnjuvin/my-journey-into-deep-q-learning-with-keras-and-gym-3e779cc12762
+
+
 import gym
 import random
 import os
