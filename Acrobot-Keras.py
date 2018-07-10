@@ -15,7 +15,7 @@ from keras.optimizers import Adam
 class Agent():
     def __init__(self, state_size, action_size):
         # Name of the weight backup
-        self.weight_backup = "cartpole_weight.h5"
+        self.weight_backup = "acrobot_weights.h5"
         self.state_size = state_size
         self.action_size = action_size
         self.memory = deque(maxlen=2000)
@@ -89,13 +89,13 @@ class Agent():
             self.exploration_rate *= self.exploration_decay
 
 
-class CartPole:
+class Acrobot:
     def __init__(self):
         # Limit the number of samples to takve so we avoid using up the memory
         self.sample_batch_size = 32
         # The number of games to play for training
         self.episodes = 10000
-        self.env = gym.make('CartPole-v1')
+        self.env = gym.make('Acrobot-v1')
 
         # Specify the observation space
         self.state_size = self.env.observation_space.shape[0]
@@ -113,7 +113,7 @@ class CartPole:
                 index = 0
                 while not done:
                     # Render the environment (turn off to run the training without visualisation)
-                    #  self.env.render()
+                    self.env.render()
 
                     action = self.agent.act(state)
 
@@ -129,5 +129,5 @@ class CartPole:
 
 
 if __name__ == "__main__":
-    cartpole = CartPole()
-    cartpole.run()
+    acrobot = Acrobot()
+    acrobot.run()
