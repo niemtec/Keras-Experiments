@@ -1,0 +1,190 @@
+<html>
+<head>
+<title>Keras-OpenGym-CartPole.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #999999; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,0,128); font-weight: bold; }
+.s1 { color: rgb(0,0,0); }
+.s2 { color: rgb(0,0,255); }
+.s3 { color: rgb(128,128,128); font-style: italic; }
+.s4 { color: rgb(0,128,128); font-weight: bold; }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+Keras-OpenGym-CartPole.py</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<a name="l1"><span class="ln">1    </span></a><span class="s0">import </span><span class="s1">sys 
+<a name="l2"><span class="ln">2    </span></a></span><span class="s0">import </span><span class="s1">gym 
+<a name="l3"><span class="ln">3    </span></a></span><span class="s0">import </span><span class="s1">pylab 
+<a name="l4"><span class="ln">4    </span></a></span><span class="s0">import </span><span class="s1">random 
+<a name="l5"><span class="ln">5    </span></a></span><span class="s0">import </span><span class="s1">numpy </span><span class="s0">as </span><span class="s1">np 
+<a name="l6"><span class="ln">6    </span></a></span><span class="s0">from </span><span class="s1">collections </span><span class="s0">import </span><span class="s1">deque 
+<a name="l7"><span class="ln">7    </span></a></span><span class="s0">from </span><span class="s1">keras.layers </span><span class="s0">import </span><span class="s1">Dense 
+<a name="l8"><span class="ln">8    </span></a></span><span class="s0">from </span><span class="s1">keras.optimizers </span><span class="s0">import </span><span class="s1">Adam 
+<a name="l9"><span class="ln">9    </span></a></span><span class="s0">from </span><span class="s1">keras.models </span><span class="s0">import </span><span class="s1">Sequential 
+<a name="l10"><span class="ln">10   </span></a> 
+<a name="l11"><span class="ln">11   </span></a>EPISODES = </span><span class="s2">300</span><span class="s1"> 
+<a name="l12"><span class="ln">12   </span></a> 
+<a name="l13"><span class="ln">13   </span></a></span><span class="s3"># DQN Agent for the Cartpole</span><span class="s1"> 
+<a name="l14"><span class="ln">14   </span></a></span><span class="s3"># it uses Neural Network to approximate q function</span><span class="s1"> 
+<a name="l15"><span class="ln">15   </span></a></span><span class="s3"># and replay memory &amp; target q network</span><span class="s1"> 
+<a name="l16"><span class="ln">16   </span></a></span><span class="s0">class </span><span class="s1">DQNAgent: 
+<a name="l17"><span class="ln">17   </span></a>    </span><span class="s0">def </span><span class="s1">__init__(self, state_size, action_size): 
+<a name="l18"><span class="ln">18   </span></a>        </span><span class="s3"># if you want to see Cartpole learning, then change to True</span><span class="s1"> 
+<a name="l19"><span class="ln">19   </span></a>        self.render = </span><span class="s0">False</span><span class="s1"> 
+<a name="l20"><span class="ln">20   </span></a>        self.load_model = </span><span class="s0">False</span><span class="s1"> 
+<a name="l21"><span class="ln">21   </span></a> 
+<a name="l22"><span class="ln">22   </span></a>        </span><span class="s3"># get size of state and action</span><span class="s1"> 
+<a name="l23"><span class="ln">23   </span></a>        self.state_size = state_size 
+<a name="l24"><span class="ln">24   </span></a>        self.action_size = action_size 
+<a name="l25"><span class="ln">25   </span></a> 
+<a name="l26"><span class="ln">26   </span></a>        </span><span class="s3"># These are hyper parameters for the DQN</span><span class="s1"> 
+<a name="l27"><span class="ln">27   </span></a>        self.discount_factor = </span><span class="s2">0.99</span><span class="s1"> 
+<a name="l28"><span class="ln">28   </span></a>        self.learning_rate = </span><span class="s2">0.001</span><span class="s1"> 
+<a name="l29"><span class="ln">29   </span></a>        self.epsilon = </span><span class="s2">1.0</span><span class="s1"> 
+<a name="l30"><span class="ln">30   </span></a>        self.epsilon_decay = </span><span class="s2">0.999</span><span class="s1"> 
+<a name="l31"><span class="ln">31   </span></a>        self.epsilon_min = </span><span class="s2">0.01</span><span class="s1"> 
+<a name="l32"><span class="ln">32   </span></a>        self.batch_size = </span><span class="s2">64</span><span class="s1"> 
+<a name="l33"><span class="ln">33   </span></a>        self.train_start = </span><span class="s2">1000</span><span class="s1"> 
+<a name="l34"><span class="ln">34   </span></a>        </span><span class="s3"># create replay memory using deque</span><span class="s1"> 
+<a name="l35"><span class="ln">35   </span></a>        self.memory = deque(maxlen=</span><span class="s2">2000</span><span class="s1">) 
+<a name="l36"><span class="ln">36   </span></a> 
+<a name="l37"><span class="ln">37   </span></a>        </span><span class="s3"># create main model and target model</span><span class="s1"> 
+<a name="l38"><span class="ln">38   </span></a>        self.model = self.build_model() 
+<a name="l39"><span class="ln">39   </span></a>        self.target_model = self.build_model() 
+<a name="l40"><span class="ln">40   </span></a> 
+<a name="l41"><span class="ln">41   </span></a>        </span><span class="s3"># initialize target model</span><span class="s1"> 
+<a name="l42"><span class="ln">42   </span></a>        self.update_target_model() 
+<a name="l43"><span class="ln">43   </span></a> 
+<a name="l44"><span class="ln">44   </span></a>        </span><span class="s0">if </span><span class="s1">self.load_model: 
+<a name="l45"><span class="ln">45   </span></a>            self.model.load_weights(</span><span class="s4">&quot;./save_model/cartpole_dqn.h5&quot;</span><span class="s1">) 
+<a name="l46"><span class="ln">46   </span></a> 
+<a name="l47"><span class="ln">47   </span></a>    </span><span class="s3"># approximate Q function using Neural Network</span><span class="s1"> 
+<a name="l48"><span class="ln">48   </span></a>    </span><span class="s3"># state is input and Q Value of each action is output of network</span><span class="s1"> 
+<a name="l49"><span class="ln">49   </span></a>    </span><span class="s0">def </span><span class="s1">build_model(self): 
+<a name="l50"><span class="ln">50   </span></a>        model = Sequential() 
+<a name="l51"><span class="ln">51   </span></a>        model.add(Dense(</span><span class="s2">24</span><span class="s1">, input_dim=self.state_size, activation=</span><span class="s4">'relu'</span><span class="s1">, 
+<a name="l52"><span class="ln">52   </span></a>                        kernel_initializer=</span><span class="s4">'he_uniform'</span><span class="s1">)) 
+<a name="l53"><span class="ln">53   </span></a>        model.add(Dense(</span><span class="s2">24</span><span class="s1">, activation=</span><span class="s4">'relu'</span><span class="s1">, 
+<a name="l54"><span class="ln">54   </span></a>                        kernel_initializer=</span><span class="s4">'he_uniform'</span><span class="s1">)) 
+<a name="l55"><span class="ln">55   </span></a>        model.add(Dense(self.action_size, activation=</span><span class="s4">'linear'</span><span class="s1">, 
+<a name="l56"><span class="ln">56   </span></a>                        kernel_initializer=</span><span class="s4">'he_uniform'</span><span class="s1">)) 
+<a name="l57"><span class="ln">57   </span></a>        model.summary() 
+<a name="l58"><span class="ln">58   </span></a>        model.compile(loss=</span><span class="s4">'mse'</span><span class="s1">, optimizer=Adam(lr=self.learning_rate)) 
+<a name="l59"><span class="ln">59   </span></a>        </span><span class="s0">return </span><span class="s1">model 
+<a name="l60"><span class="ln">60   </span></a> 
+<a name="l61"><span class="ln">61   </span></a>    </span><span class="s3"># after some time interval update the target model to be same with model</span><span class="s1"> 
+<a name="l62"><span class="ln">62   </span></a>    </span><span class="s0">def </span><span class="s1">update_target_model(self): 
+<a name="l63"><span class="ln">63   </span></a>        self.target_model.set_weights(self.model.get_weights()) 
+<a name="l64"><span class="ln">64   </span></a> 
+<a name="l65"><span class="ln">65   </span></a>    </span><span class="s3"># get action from model using epsilon-greedy policy</span><span class="s1"> 
+<a name="l66"><span class="ln">66   </span></a>    </span><span class="s0">def </span><span class="s1">get_action(self, state): 
+<a name="l67"><span class="ln">67   </span></a>        </span><span class="s0">if </span><span class="s1">np.random.rand() &lt;= self.epsilon: 
+<a name="l68"><span class="ln">68   </span></a>            </span><span class="s0">return </span><span class="s1">random.randrange(self.action_size) 
+<a name="l69"><span class="ln">69   </span></a>        </span><span class="s0">else</span><span class="s1">: 
+<a name="l70"><span class="ln">70   </span></a>            q_value = self.model.predict(state) 
+<a name="l71"><span class="ln">71   </span></a>            </span><span class="s0">return </span><span class="s1">np.argmax(q_value[</span><span class="s2">0</span><span class="s1">]) 
+<a name="l72"><span class="ln">72   </span></a> 
+<a name="l73"><span class="ln">73   </span></a>    </span><span class="s3"># save sample &lt;s,a,r,s'&gt; to the replay memory</span><span class="s1"> 
+<a name="l74"><span class="ln">74   </span></a>    </span><span class="s0">def </span><span class="s1">append_sample(self, state, action, reward, next_state, done): 
+<a name="l75"><span class="ln">75   </span></a>        self.memory.append((state, action, reward, next_state, done)) 
+<a name="l76"><span class="ln">76   </span></a>        </span><span class="s0">if </span><span class="s1">self.epsilon &gt; self.epsilon_min: 
+<a name="l77"><span class="ln">77   </span></a>            self.epsilon *= self.epsilon_decay 
+<a name="l78"><span class="ln">78   </span></a> 
+<a name="l79"><span class="ln">79   </span></a>    </span><span class="s3"># pick samples randomly from replay memory (with batch_size)</span><span class="s1"> 
+<a name="l80"><span class="ln">80   </span></a>    </span><span class="s0">def </span><span class="s1">train_model(self): 
+<a name="l81"><span class="ln">81   </span></a>        </span><span class="s0">if </span><span class="s1">len(self.memory) &lt; self.train_start: 
+<a name="l82"><span class="ln">82   </span></a>            </span><span class="s0">return</span><span class="s1"> 
+<a name="l83"><span class="ln">83   </span></a>        batch_size = min(self.batch_size, len(self.memory)) 
+<a name="l84"><span class="ln">84   </span></a>        mini_batch = random.sample(self.memory, batch_size) 
+<a name="l85"><span class="ln">85   </span></a> 
+<a name="l86"><span class="ln">86   </span></a>        update_input = np.zeros((batch_size, self.state_size)) 
+<a name="l87"><span class="ln">87   </span></a>        update_target = np.zeros((batch_size, self.state_size)) 
+<a name="l88"><span class="ln">88   </span></a>        action, reward, done = [], [], [] 
+<a name="l89"><span class="ln">89   </span></a> 
+<a name="l90"><span class="ln">90   </span></a>        </span><span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">range(self.batch_size): 
+<a name="l91"><span class="ln">91   </span></a>            update_input[i] = mini_batch[i][</span><span class="s2">0</span><span class="s1">] 
+<a name="l92"><span class="ln">92   </span></a>            action.append(mini_batch[i][</span><span class="s2">1</span><span class="s1">]) 
+<a name="l93"><span class="ln">93   </span></a>            reward.append(mini_batch[i][</span><span class="s2">2</span><span class="s1">]) 
+<a name="l94"><span class="ln">94   </span></a>            update_target[i] = mini_batch[i][</span><span class="s2">3</span><span class="s1">] 
+<a name="l95"><span class="ln">95   </span></a>            done.append(mini_batch[i][</span><span class="s2">4</span><span class="s1">]) 
+<a name="l96"><span class="ln">96   </span></a> 
+<a name="l97"><span class="ln">97   </span></a>        target = self.model.predict(update_input) 
+<a name="l98"><span class="ln">98   </span></a>        target_val = self.target_model.predict(update_target) 
+<a name="l99"><span class="ln">99   </span></a> 
+<a name="l100"><span class="ln">100  </span></a>        </span><span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">range(self.batch_size): 
+<a name="l101"><span class="ln">101  </span></a>            </span><span class="s3"># Q Learning: get maximum Q value at s' from target model</span><span class="s1"> 
+<a name="l102"><span class="ln">102  </span></a>            </span><span class="s0">if </span><span class="s1">done[i]: 
+<a name="l103"><span class="ln">103  </span></a>                target[i][action[i]] = reward[i] 
+<a name="l104"><span class="ln">104  </span></a>            </span><span class="s0">else</span><span class="s1">: 
+<a name="l105"><span class="ln">105  </span></a>                target[i][action[i]] = reward[i] + self.discount_factor * ( 
+<a name="l106"><span class="ln">106  </span></a>                    np.amax(target_val[i])) 
+<a name="l107"><span class="ln">107  </span></a> 
+<a name="l108"><span class="ln">108  </span></a>        </span><span class="s3"># and do the model fit!</span><span class="s1"> 
+<a name="l109"><span class="ln">109  </span></a>        self.model.fit(update_input, target, batch_size=self.batch_size, 
+<a name="l110"><span class="ln">110  </span></a>                       epochs=</span><span class="s2">1</span><span class="s1">, verbose=</span><span class="s2">0</span><span class="s1">) 
+<a name="l111"><span class="ln">111  </span></a> 
+<a name="l112"><span class="ln">112  </span></a> 
+<a name="l113"><span class="ln">113  </span></a></span><span class="s0">if </span><span class="s1">__name__ == </span><span class="s4">&quot;__main__&quot;</span><span class="s1">: 
+<a name="l114"><span class="ln">114  </span></a>    </span><span class="s3"># In case of CartPole-v1, maximum length of episode is 500</span><span class="s1"> 
+<a name="l115"><span class="ln">115  </span></a>    env = gym.make(</span><span class="s4">'CartPole-v1'</span><span class="s1">) 
+<a name="l116"><span class="ln">116  </span></a>    </span><span class="s3"># get size of state and action from environment</span><span class="s1"> 
+<a name="l117"><span class="ln">117  </span></a>    state_size = env.observation_space.shape[</span><span class="s2">0</span><span class="s1">] 
+<a name="l118"><span class="ln">118  </span></a>    action_size = env.action_space.n 
+<a name="l119"><span class="ln">119  </span></a> 
+<a name="l120"><span class="ln">120  </span></a>    agent = DQNAgent(state_size, action_size) 
+<a name="l121"><span class="ln">121  </span></a> 
+<a name="l122"><span class="ln">122  </span></a>    scores, episodes = [], [] 
+<a name="l123"><span class="ln">123  </span></a> 
+<a name="l124"><span class="ln">124  </span></a>    </span><span class="s0">for </span><span class="s1">e </span><span class="s0">in </span><span class="s1">range(EPISODES): 
+<a name="l125"><span class="ln">125  </span></a>        done = </span><span class="s0">False</span><span class="s1"> 
+<a name="l126"><span class="ln">126  </span></a>        score = </span><span class="s2">0</span><span class="s1"> 
+<a name="l127"><span class="ln">127  </span></a>        state = env.reset() 
+<a name="l128"><span class="ln">128  </span></a>        state = np.reshape(state, [</span><span class="s2">1</span><span class="s1">, state_size]) 
+<a name="l129"><span class="ln">129  </span></a> 
+<a name="l130"><span class="ln">130  </span></a>        </span><span class="s0">while not </span><span class="s1">done: 
+<a name="l131"><span class="ln">131  </span></a>            </span><span class="s0">if </span><span class="s1">agent.render: 
+<a name="l132"><span class="ln">132  </span></a>                env.render() 
+<a name="l133"><span class="ln">133  </span></a> 
+<a name="l134"><span class="ln">134  </span></a>            </span><span class="s3"># get action for the current state and go one step in environment</span><span class="s1"> 
+<a name="l135"><span class="ln">135  </span></a>            action = agent.get_action(state) 
+<a name="l136"><span class="ln">136  </span></a>            next_state, reward, done, info = env.step(action) 
+<a name="l137"><span class="ln">137  </span></a>            next_state = np.reshape(next_state, [</span><span class="s2">1</span><span class="s1">, state_size]) 
+<a name="l138"><span class="ln">138  </span></a>            </span><span class="s3"># if an action make the episode end, then gives penalty of -100</span><span class="s1"> 
+<a name="l139"><span class="ln">139  </span></a>            reward = reward </span><span class="s0">if not </span><span class="s1">done </span><span class="s0">or </span><span class="s1">score == </span><span class="s2">499 </span><span class="s0">else </span><span class="s1">-</span><span class="s2">100</span><span class="s1"> 
+<a name="l140"><span class="ln">140  </span></a> 
+<a name="l141"><span class="ln">141  </span></a>            </span><span class="s3"># save the sample &lt;s, a, r, s'&gt; to the replay memory</span><span class="s1"> 
+<a name="l142"><span class="ln">142  </span></a>            agent.append_sample(state, action, reward, next_state, done) 
+<a name="l143"><span class="ln">143  </span></a>            </span><span class="s3"># every time step do the training</span><span class="s1"> 
+<a name="l144"><span class="ln">144  </span></a>            agent.train_model() 
+<a name="l145"><span class="ln">145  </span></a>            score += reward 
+<a name="l146"><span class="ln">146  </span></a>            state = next_state 
+<a name="l147"><span class="ln">147  </span></a> 
+<a name="l148"><span class="ln">148  </span></a>            </span><span class="s0">if </span><span class="s1">done: 
+<a name="l149"><span class="ln">149  </span></a>                </span><span class="s3"># every episode update the target model to be same with model</span><span class="s1"> 
+<a name="l150"><span class="ln">150  </span></a>                agent.update_target_model() 
+<a name="l151"><span class="ln">151  </span></a> 
+<a name="l152"><span class="ln">152  </span></a>                </span><span class="s3"># every episode, plot the play time</span><span class="s1"> 
+<a name="l153"><span class="ln">153  </span></a>                score = score </span><span class="s0">if </span><span class="s1">score == </span><span class="s2">500 </span><span class="s0">else </span><span class="s1">score + </span><span class="s2">100</span><span class="s1"> 
+<a name="l154"><span class="ln">154  </span></a>                scores.append(score) 
+<a name="l155"><span class="ln">155  </span></a>                episodes.append(e) 
+<a name="l156"><span class="ln">156  </span></a>                pylab.plot(episodes, scores, </span><span class="s4">'b'</span><span class="s1">) 
+<a name="l157"><span class="ln">157  </span></a>                pylab.savefig(</span><span class="s4">&quot;./save_graph/cartpole_dqn.png&quot;</span><span class="s1">) 
+<a name="l158"><span class="ln">158  </span></a>                print(</span><span class="s4">&quot;episode:&quot;</span><span class="s1">, e, </span><span class="s4">&quot;  score:&quot;</span><span class="s1">, score, </span><span class="s4">&quot;  memory length:&quot;</span><span class="s1">, 
+<a name="l159"><span class="ln">159  </span></a>                      len(agent.memory), </span><span class="s4">&quot;  epsilon:&quot;</span><span class="s1">, agent.epsilon) 
+<a name="l160"><span class="ln">160  </span></a> 
+<a name="l161"><span class="ln">161  </span></a>                </span><span class="s3"># if the mean of scores of last 10 episode is bigger than 490</span><span class="s1"> 
+<a name="l162"><span class="ln">162  </span></a>                </span><span class="s3"># stop training</span><span class="s1"> 
+<a name="l163"><span class="ln">163  </span></a>                </span><span class="s0">if </span><span class="s1">np.mean(scores[-min(</span><span class="s2">10</span><span class="s1">, len(scores)):]) &gt; </span><span class="s2">490</span><span class="s1">: 
+<a name="l164"><span class="ln">164  </span></a>                    sys.exit() 
+<a name="l165"><span class="ln">165  </span></a> 
+<a name="l166"><span class="ln">166  </span></a>        </span><span class="s3"># save the model</span><span class="s1"> 
+<a name="l167"><span class="ln">167  </span></a>        </span><span class="s0">if </span><span class="s1">e % </span><span class="s2">50 </span><span class="s1">== </span><span class="s2">0</span><span class="s1">: 
+<a name="l168"><span class="ln">168  </span></a>            agent.model.save_weights(</span><span class="s4">&quot;./save_model/cartpole_dqn.h5&quot;</span><span class="s1">)</span></pre>
+</body>
+</html>

@@ -1,5 +1,4 @@
-# OpenAI Gym Cart Pole Evironment - Using Keras and Q Learning
-# Tutorial used: https://medium.com/@gtnjuvin/my-journey-into-deep-q-learning-with-keras-and-gym-3e779cc12762
+# OpenAI Gym Acrobot Evironment - Using Keras and Q Learning
 
 
 import gym
@@ -18,16 +17,16 @@ class Agent():
         self.weight_backup = "acrobot_weights.h5"
         self.state_size = state_size
         self.action_size = action_size
-        self.memory = deque(maxlen=2000)
+        self.memory = deque(maxlen=4000)
         # Learning Rate indicates how much NN learns from the loss between the target and the prediction in each iteration
-        self.learning_rate = 0.001
+        self.learning_rate = 0.002
         # Gamma is used to calculate the future discounted reward
         self.gamma = 0.95
         # Initially actions chosen at random until agent gains experience
         self.exploration_rate = 1.0
         self.exploration_min = 0.01
         # Decreases the number of random explorations as agent learns
-        self.exploration_decay = 0.995
+        self.exploration_decay = 0.998
         self.brain = self._build_model()
 
     def _build_model(self):
@@ -38,8 +37,8 @@ class Agent():
         model.add(Dense(24, input_dim=self.state_size, activation='relu'))
         # Hidden layer with 24 nodes
         model.add(Dense(24, activation='relu'))
-        # Output layer with two actions: 2 nodes (left, right move)
-        model.add(Dense(self.action_size, activation='linear'))
+        model.add(Dense(24, activation='relu'))
+        model.add(Dense(3, activation='linear'))
         # Create the model based on the configuration above
         model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
 
@@ -48,7 +47,6 @@ class Agent():
             model.load_weights(self.weight_backup)
             self.exploration_rate = self.exploration_min
         return model
-
     # Saves the weight configuration
     def save_model(self):
         self.brain.save(self.weight_backup)
@@ -62,6 +60,8 @@ class Agent():
         act_values = self.brain.predict(state)
         # Return the highest value between two elements in act_values[0] e.g. [0.26, 0.04] with numbers representing the reward for picking left/right action
         # the example above will return 0 (because 0.26 > 0.04) and the agent will move left to maximise reward
+        #print("PRINTING ARRAY")
+        #print(np.argmax(act_values[0]))
         return np.argmax(act_values[0])
 
     # Save observation from environment to memory
@@ -92,9 +92,9 @@ class Agent():
 class Acrobot:
     def __init__(self):
         # Limit the number of samples to takve so we avoid using up the memory
-        self.sample_batch_size = 32
+        self.sample_batch_size = 64
         # The number of games to play for training
-        self.episodes = 10000
+        self.episodes = 50000
         self.env = gym.make('Acrobot-v1')
 
         # Specify the observation space
