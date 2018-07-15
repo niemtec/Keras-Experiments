@@ -15,3 +15,33 @@ fashion_mnist = keras.datasets.fashion_mnist
 # Class names for the dataset (not natively included)
 class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
 
+# PRE-PROCESSING THE DATA
+# Show a sample image before processing
+plt.figure()
+plt.imshow(train_images[0])
+plt.colorbar()
+plt.gca().grid(False)
+plt.show()
+
+# Scale the 0-255 values to 0-1.
+train_images = train_images / 255.0
+test_images = test_images / 255.0
+
+# Show a sample image after processing
+plt.figure()
+plt.imshow(train_images[0])
+plt.colorbar()
+plt.gca().grid(False)
+plt.show()
+
+# Display first 25 images from training set with class names
+plt.figure(figsize=(10,10))
+for i in range(25):
+    plt.subplot(5,5,i+1)
+    plt.xticks([])
+    plt.yticks([])
+    plt.grid('off')
+    plt.imshow(train_images[i], cmap=plt.cm.binary)
+    plt.xlabel(class_names[train_labels[i]])
+plt.show()
+
