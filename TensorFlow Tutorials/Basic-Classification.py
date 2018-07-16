@@ -93,3 +93,19 @@ for i in range(25):
                color=color)
 #plt.show()
 
+# Grab image from the test dataset
+img = test_images[0]
+print("Test Image Shape: ", img.shape)
+
+# Add the image to a batch where it's the only member.
+img = (np.expand_dims(img,0))
+
+print("Test Image Shape: ", img.shape)
+
+predictions = model.predict(img)
+
+print("Prediction: ", predictions)
+
+prediction = predictions[0]
+
+print(np.argmax(prediction))
