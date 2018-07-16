@@ -45,3 +45,12 @@ for i in range(25):
     plt.xlabel(class_names[train_labels[i]])
 plt.show()
 
+# BUILD THE MODEL
+# Typical model for a fully-connected network (perceptron)
+model = keras.Sequential()
+# Add a densly-connected layer with 64 units
+model.add(keras.layers.Dense(64, activation='relu'))
+# Add another layer
+model.add(keras.layers.Dense(64, activation='relu'))
+# Add a softmax layer with 10 output units
+model.add(keras.layers.Dense(10, activation='softmax'))
