@@ -67,9 +67,15 @@ print(train_data[0])
 vocab_size = 10000
 
 model = keras.Sequential()
+# L1: Takes the integer-encoded vocabulary and looks up embedding vector for each word index
+# The vectors are learned as the model trains
 model.add(keras.layers.Embedding(vocab_size, 16))
+# Returns a fixed-length output vector for each example (by averaging over the sequence dimension)
+# Allows model to handle input of variable length in the simplest way possible
 model.add(keras.layers.GlobalAveragePooling1D())
+# Fixed-length output vector piped through a fully-connected (dense) layer with 16 hidden units
 model.add(keras.layers.Dense(16, activation=tf.nn.relu))
+# Densly connected layer with a single output node
 model.add(keras.layers.Dense(1, activation=tf.nn.sigmoid))
 
 model.summary()
