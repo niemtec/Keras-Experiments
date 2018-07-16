@@ -6,6 +6,7 @@ from tensorflow import keras
 # Helper libraries
 import numpy as np
 import matplotlib.pyplot as plt
+
 print(tf.__version__)
 
 # Using the Fashion MNIST dataset
@@ -36,9 +37,9 @@ plt.gca().grid(False)
 plt.show()
 
 # Display first 25 images from training set with class names
-plt.figure(figsize=(10,10))
+plt.figure(figsize=(10, 10))
 for i in range(25):
-    plt.subplot(5,5,i+1)
+    plt.subplot(5, 5, i + 1)
     plt.xticks([])
     plt.yticks([])
     plt.grid('off')
@@ -47,22 +48,14 @@ for i in range(25):
 plt.show()
 
 # BUILD THE MODEL
-# Typical model for a fully-connected network (perceptron)
-model = keras.Sequential()
-# Add a densly-connected layer with 64 units
-model.add(keras.layers.Dense(64, activation='relu'))
-# Add another layer
-model.add(keras.layers.Dense(64, activation='relu'))
-# Add a softmax layer with 10 output units
-model.add(keras.layers.Dense(10, activation='softmax'))
+model = keras.Sequential([
+    keras.layers.Flatten(input_shape=(28, 28)),  # Converts the layer from 2d (28x28) to 1d 784)
+    keras.layers.Dense(128, activation=tf.nn.relu),
+    keras.layers.Dense(10, activation=tf.nn.softmax)  # Returns an array of 10 probability scores that sum to 1
+])
 
-# Create a sigmoid layer:
-layers.Dense(64, activation='sigmoid')
-# A linear layer with L1 regularization of factor 0.01 applied to the kernel matrix:
-layers.Dense(64, kernel_regularizer=keras.regularizers.l1(0.01))
-# A linear layer with L2 regularization of factor 0.01 applied to the bias vector:
-layers.Dense(64, bias_regularizer=keras.regularizers.l2(0.01))
-# A linear layer with a kernel initialized to a random orthogonal matrix:
-layers.Dense(64, kernel_initializer='orthogonal')
-# A linear layer with a bias vector initialized to 2.0s:
-layers.Dense(64, bias_initializer=keras.initializers.constant(2.0))
+# Compiling the model
+model.compile(optimiser=tf.train.AdamOptimizer(),
+              # How the model is updated based on the data it sees and its loss function
+              loss='sparse_categorical_crossentropy',  # Measures how accurate the model is during training
+              metrics=['accuracy'])  # Monitors the training and testing steps, in this case accuracy
