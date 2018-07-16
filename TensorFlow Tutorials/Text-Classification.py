@@ -4,10 +4,12 @@
 import tensorflow as tf
 from tensorflow import keras
 import numpy as np
+
 print(tf.__version__)
 
 imdb = keras.datasets.imdb
-(train_data, train_labels), (test_data, test_labels) = imdb.load_data(num_words=10000) # keeps top 10000 words in the training data
+(train_data, train_labels), (test_data, test_labels) = imdb.load_data(
+    num_words=10000)  # keeps top 10000 words in the training data
 
 # EXPLORE THE DATA
 # Each example is an array of integers representing the words of the movie review.
@@ -25,7 +27,7 @@ print(len(train_data[0]), len(train_data[1]))
 word_index = imdb.get_word_index()
 
 # The first indices are reserved
-word_index = {k:(v+3) for k,v in word_index.items()}
+word_index = {k: (v + 3) for k, v in word_index.items()}
 word_index["<PAD>"] = 0
 word_index["<START>"] = 1
 word_index["<UNK>"] = 2  # unknown
@@ -33,5 +35,30 @@ word_index["<UNUSED>"] = 3
 
 reverse_word_index = dict([(value, key) for (key, value) in word_index.items()])
 
+
 def decode_review(text):
     return ' '.join([reverse_word_index.get(i, '?') for i in text])
+
+
+# Example of using a decoder to see the review
+print(decode_review(train_data[0]))
+
+
+# PREPARING THE DATA
+# The reviews—the arrays of integers—must be converted to tensors before fed into the neural network.
+# Reviews must be of same length - they will be padded to standardise their lengths
+train_data = keras.preprocessing.sequence.pad_sequences(train_data,
+                                                        value=word_index["<PAD>"],
+                                                        padding='post',
+                                                        maxlen=256)
+
+test_data = keras.preprocessing.sequence.pad_sequences(test_data,
+                                                       value=word_index["<PAD>"],
+                                                       padding='post',
+                                                       maxlen=256)
+
+print("Review length after padding: ", len(train_data[0]), len(train_data[1]))
+
+# Show first padded review
+print(train_data[0])
+
