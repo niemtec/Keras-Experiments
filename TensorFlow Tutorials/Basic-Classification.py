@@ -23,7 +23,7 @@ plt.figure()
 plt.imshow(train_images[0])
 plt.colorbar()
 plt.gca().grid(False)
-#plt.show()
+# plt.show()
 
 # Scale the 0-255 values to 0-1.
 train_images = train_images / 255.0
@@ -34,7 +34,7 @@ plt.figure()
 plt.imshow(train_images[0])
 plt.colorbar()
 plt.gca().grid(False)
-#plt.show()
+# plt.show()
 
 # Display first 25 images from training set with class names
 plt.figure(figsize=(10, 10))
@@ -45,7 +45,7 @@ for i in range(25):
     plt.grid('off')
     plt.imshow(train_images[i], cmap=plt.cm.binary)
     plt.xlabel(class_names[train_labels[i]])
-#plt.show()
+# plt.show()
 
 # BUILD THE MODEL
 model = keras.Sequential([
@@ -60,6 +60,9 @@ model.compile(optimizer=tf.train.AdamOptimizer(),
               loss='sparse_categorical_crossentropy',  # Measures how accurate the model is during training
               metrics=['accuracy'])  # Monitors the training and testing steps, in this case accuracy
 
-
 # TRAINING THE MODEL
-model.fit(train_images, train_labels, epochs = 5, verbose=2) # verbose 0 - no log, 1 - full log, 2- summary
+model.fit(train_images, train_labels, epochs=5, verbose=2)  # verbose 0 - no log, 1 - full log, 2- summary
+
+# Evaluate accuracy
+test_loss, test_acc = model.evaluate(test_images, test_labels)
+print('Test Accuracy', test_acc)
