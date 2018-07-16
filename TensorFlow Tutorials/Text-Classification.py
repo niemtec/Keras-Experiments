@@ -43,7 +43,6 @@ def decode_review(text):
 # Example of using a decoder to see the review
 print(decode_review(train_data[0]))
 
-
 # PREPARING THE DATA
 # The reviews—the arrays of integers—must be converted to tensors before fed into the neural network.
 # Reviews must be of same length - they will be padded to standardise their lengths
@@ -62,3 +61,15 @@ print("Review length after padding: ", len(train_data[0]), len(train_data[1]))
 # Show first padded review
 print(train_data[0])
 
+
+# BUILD THE MODEL
+# input shape is the vocabulary count used for the movie reviews (10,000 words)
+vocab_size = 10000
+
+model = keras.Sequential()
+model.add(keras.layers.Embedding(vocab_size, 16))
+model.add(keras.layers.GlobalAveragePooling1D())
+model.add(keras.layers.Dense(16, activation=tf.nn.relu))
+model.add(keras.layers.Dense(1, activation=tf.nn.sigmoid))
+
+model.summary()
