@@ -61,7 +61,6 @@ print("Review length after padding: ", len(train_data[0]), len(train_data[1]))
 # Show first padded review
 print(train_data[0])
 
-
 # BUILD THE MODEL
 # input shape is the vocabulary count used for the movie reviews (10,000 words)
 vocab_size = 10000
@@ -79,3 +78,14 @@ model.add(keras.layers.Dense(16, activation=tf.nn.relu))
 model.add(keras.layers.Dense(1, activation=tf.nn.sigmoid))
 
 model.summary()
+
+# The model has two hidden layers giving it more freedom to learn
+# More hidden layers can be used to learn more complex representations (expensive)
+# Too many layers can cause network to learn unwanted patterns which causes overfitting
+
+
+# Loss function and optimiser
+# Since this is a binary classification problem, we use binary_crossentropy loss function (good for probabilities)
+model.compile(optimizer=tf.train.AdamOptimizer(),
+              loss='binary_crossentropy',
+              metrics=['accuracy'])
