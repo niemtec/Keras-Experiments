@@ -126,7 +126,7 @@ epochs = range(1, len(acc) + 1)
 
 # "Bo" is for "Blue Dot"
 plt.plot(epochs, loss, 'bo', label='Training Loss')
-# b is ofr "Solid Blue Line"
+# b is for "Solid Blue Line"
 plt.plot(epochs, val_loss, 'b', label='Validation Loss')
 plt.title('Training and validation loss')
 plt.xlabel('Epochs')
@@ -139,8 +139,8 @@ plt.clf()   # clear figure
 acc_values = history_dict['acc']
 val_acc_values = history_dict['val_acc']
 
-plt.plot(epochs, acc, 'bo', label='Training acc')
-plt.plot(epochs, val_acc, 'b', label='Validation acc')
+plt.plot(epochs, acc, 'ro', label='Training acc')
+plt.plot(epochs, val_acc, 'r', label='Validation acc')
 plt.title('Training and validation accuracy')
 plt.xlabel('Epochs')
 plt.ylabel('Accuracy')
