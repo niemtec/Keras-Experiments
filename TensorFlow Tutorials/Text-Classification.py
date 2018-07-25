@@ -91,10 +91,18 @@ model.compile(optimizer=tf.train.AdamOptimizer(),
               metrics=['accuracy'])
 
 
-# Validation set
+# Validation set for checking accuracy of model on unseen data
 x_val = train_data[:10000]
 partial_x_train = train_data[10000:]
 
 y_val = train_labels[:10000]
 partial_y_train = train_labels[10000:]
 
+# TRAINING THE MODEL
+# Training for 20 epoch in mini-batches of 512 samples (20 iterations over all samples)
+history = model.fit(partial_x_train,
+                    partial_y_train,
+                    epochs=40,
+                    batch_size=512,
+                    validation_data=(x_val, y_val),
+                    verbose=1)
