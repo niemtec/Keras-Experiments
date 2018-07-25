@@ -106,3 +106,7 @@ history = model.fit(partial_x_train,
                     batch_size=512,
                     validation_data=(x_val, y_val),
                     verbose=1)
+
+# EVALUATE THE MODEL
+results = model.evaluate(test_data, test_labels)
+print(results)
