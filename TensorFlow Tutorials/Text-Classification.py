@@ -2,6 +2,7 @@
 # Binary Classification Example
 
 import tensorflow as tf
+import matplotlib.pyplot as plt
 from tensorflow import keras
 import numpy as np
 
@@ -110,3 +111,39 @@ history = model.fit(partial_x_train,
 # EVALUATE THE MODEL
 results = model.evaluate(test_data, test_labels)
 print(results)
+
+# CREATE GRAPHS OF ACCURACY
+# Using the history dictionary to plot the results
+history_dict = history.history
+history_dict.keys()
+
+acc = history.history['acc']
+val_acc = history.history['val_acc']
+loss = history.history['loss']
+val_loss = history.history['val_loss']
+
+epochs = range(1, len(acc) + 1)
+
+# "Bo" is for "Blue Dot"
+plt.plot(epochs, loss, 'bo', label='Training Loss')
+# b is ofr "Solid Blue Line"
+plt.plot(epochs, val_loss, 'b', label='Validation Loss')
+plt.title('Training and validation loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.legend()
+plt.savefig('Training-and-validation-loss.png')
+plt.show()
+
+plt.clf()   # clear figure
+acc_values = history_dict['acc']
+val_acc_values = history_dict['val_acc']
+
+plt.plot(epochs, acc, 'bo', label='Training acc')
+plt.plot(epochs, val_acc, 'b', label='Validation acc')
+plt.title('Training and validation accuracy')
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy')
+plt.legend()
+plt.savefig('Training-and-validation-accuracy.png')
+plt.show()
