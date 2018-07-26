@@ -17,3 +17,6 @@ train_labels = train_labels[order]
 
 print("Training set: {}".format(train_data.shape))  # 404 examples, 13 features
 print("Testing set:  {}".format(test_data.shape))   # 102 examples, 13 features
+
+# Each feature uses a different scale:
+print(train_data[0])  # Display sample features to show different scales
