@@ -105,3 +105,13 @@ def plot_history(history):
 
 plot_history(history)
 
+# Make model.fit stop training when validation doesn't improve
+model = build_model()
+# Practice parameter is the number of epoch to check for improvement
+early_stop = keras.callbacks.EarlyStopping(monitor='val_loss', patience=20)
+
+history = model.fit(train_data, train_labels, epochs=EPOCHS,
+                    validation_split=0.2, verbose=0,
+                    callbacks=[early_stop, PrintDot()])
+
+plot_history(history)
