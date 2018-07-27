@@ -45,7 +45,29 @@ test_data = (test_data - mean) / std
 
 print(train_data[0])  # First normalised training sample
 
+
 # Although the model might converge without feature normalization, it makes training more difficult,
 # it makes the resulting model more dependant on the choice of units used in the input.
 
 # Create the model
+# Using a Sequential model with two densly connected hidden layers and output layer returning a single value
+# Wrapped in a function for later reuse
+def build_model():
+    model = keras.Sequential([
+        keras.layers.Dense(64, activation=tf.nn.relu,
+                           input_shape=(train_data.shape[1],)),
+        keras.layers.Dense(64, activation=tf.nn.relu),
+        keras.layers.Dense(1)
+    ])
+
+    optimiser = tf.train.RMSPropOptimizer(0.001)
+
+    model.compile(loss='mse',
+                  optimizer=optimiser,
+                  metrics=['mae'])
+
+    return model
+
+
+model = build_model()
+model.summary()
