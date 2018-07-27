@@ -115,3 +115,12 @@ history = model.fit(train_data, train_labels, epochs=EPOCHS,
                     callbacks=[early_stop, PrintDot()])
 
 plot_history(history)
+
+[loss, mae] = model.evaluate(test_data, test_labels, verbose=0)
+
+print()
+print("Testing set Mean Absolute Error: ${:7.2f}".format(mae*1000))
+
+# Predict
+test_predictions = model.predict(test_data).flatten()
+print(test_predictions)
