@@ -6,6 +6,8 @@ import pandas as pd
 from tensorflow import keras
 
 import numpy as np
+import matplotlib.pyplot as plt
+
 
 print(tf.__version__)
 
@@ -86,3 +88,20 @@ EPOCHS = 500
 history = model.fit(train_data, train_labels, epochs=EPOCHS,
                     validation_split=0.2, verbose = 0,
                     callbacks=[PrintDot()])
+
+
+# Visualise model training process using stats stored in history object
+# -> used to determine how long to train before the model stops making progress
+def plot_history(history):
+    plt.figure()
+    plt.xlabel('Epoch')
+    plt.ylabel('Mean Absolute Error [1000$]')
+    plt.plot(history.epoch, np.array(history.history['mean_absolute_error']),
+             label='Train Loss')
+    plt.plot(history.epoch, np.array(history.history['val_mean_absolute_error']),
+             label='Val Loss')
+    plt.legend()
+    plt.ylim([0,5])
+
+plot_history(history)
+
