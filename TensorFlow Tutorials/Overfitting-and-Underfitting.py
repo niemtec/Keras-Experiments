@@ -132,3 +132,26 @@ l2_model_history = l2_model.fit(train_data, train_labels,
 # Printing plot history to show L2 regularisation
 plot_history([('baseline', baseline_history),
               ('l2', l2_model_history)])
+
+
+# Demonstrating dropout
+dpt_model = keras.models.Sequential([
+    keras.layers.Dense(16, activation=tf.nn.relu, input_shape=(10000,)),
+    keras.layers.Dropout(0.5),
+    keras.layers.Dense(16, activation=tf.nn.relu),
+    keras.layers.Dropout(0.5),
+    keras.layers.Dense(1, activation=tf.nn.sigmoid)
+])
+
+dpt_model.compile(optimizer='adam',
+                  loss='binary_crossentropy',
+                  metrics=['accuracy','binary_crossentropy'])
+
+dpt_model_history = dpt_model.fit(train_data, train_labels,
+                                  epochs=20,
+                                  batch_size=512,
+                                  validation_data=(test_data, test_labels),
+                                  verbose=2)
+
+plot_history([('baseline', baseline_history),
+              ('dropout', dpt_model_history)])
