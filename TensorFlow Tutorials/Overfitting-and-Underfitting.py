@@ -65,3 +65,25 @@ smaller_history = smaller_model.fit(train_data,
                                     batch_size=512,
                                     validation_data=(test_data, test_labels),
                                     verbose=2)
+
+
+# Create a bigger model
+bigger_model = keras.models.Sequential([
+    keras.layers.Dense(512, activation=tf.nn.relu, input_shape=(10000,)),
+    keras.layers.Dense(512, activation=tf.nn.relu),
+    keras.layers.Dense(1, activation=tf.nn.sigmoid)
+])
+
+bigger_model.compile(optimizer='adam',
+                     loss='binary_crossentropy',
+                     metrics=['accuracy','binary_crossentropy'])
+
+bigger_model.summary()
+
+bigger_history = bigger_model.fit(train_data, train_labels,
+                                  epochs=20,
+                                  batch_size=512,
+                                  validation_data=(test_data, test_labels),
+                                  verbose=2)
+
+
