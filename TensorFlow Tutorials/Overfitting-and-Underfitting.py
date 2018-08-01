@@ -23,3 +23,16 @@ test_data = multi_hot_sequences(test_data, dimension=NUM_WORDS)
 
 plt.plot(train_data[0])
 plt.show()
+
+# Creating simple model using only Dense layers
+baseline_model = keras.Sequential([
+    keras.layers.Dense(16, activation=tf.nn.relu, input_shape=(10000,)),
+    keras.layers.Dense(16, activation=tf.nn.relu),
+    keras.layers.Dense(1, activation=tf.nn.sigmoid)
+    ])
+
+baseline_model.compile(optimizer='adam',
+                       loss='binary_crossentropy',
+                       metrics=['accuracy', 'binary_crossentropy'])
+
+baseline_model.summary()
