@@ -56,10 +56,50 @@ model.fit(train_images, train_labels, epochs=10,
 model = create_model()
 
 loss, acc = model.evaluate(test_images, test_labels)
-print("Untrained model, accuracy: {:5.2f}%".format(100*acc))
+print("Untrained model, accuracy: {:5.2f}%".format(100 * acc))
 
 # Load weights
 model.load_weights(checkpoint_path)
+loss, acc = model.evaluate(test_images, test_labels)
+print("Restored model, accuracy: {:5.2f}%".format(100 * acc))
+
+# Checkpoint callback options
+# include the epoch in the file name. (uses `str.format`)
+checkpoint_path = "training_2/cp-{epoch:04d}.ckpt"
+checkpoint_dir = os.path.dirname(checkpoint_path)
+
+cp_callback = tf.keras.callbacks.ModelCheckpoint(
+    checkpoint_path, verbose=1, save_weights_only=True,
+    # Save weights, every 5-epochs.
+    period=5)
+
+model = create_model()
+model.fit(train_images, train_labels,
+          epochs=50, callbacks=[cp_callback],
+          validation_data=(test_images, test_labels),
+          verbose=0)
+
+import pathlib
+
+# Sort the checkpoints by modification time.
+checkpoints = pathlib.Path(checkpoint_dir).glob("*.index")
+checkpoints = sorted(checkpoints, key=lambda cp: cp.stat().st_mtime)
+checkpoints = [cp.with_suffix('') for cp in checkpoints]
+latest = str(checkpoints[-1])
+checkpoints
+
+model = create_model()
+model.load_weights(latest)
+loss, acc = model.evaluate(test_images, test_labels)
+print("Restored model, accuracy: {:5.2f}%".format(100 * acc))
+
+# Manually save weights
+# Save the weights
+model.save_weights('./checkpoints/my_checkpoint')
+
+# Restore the weights
+model = create_model()
+model.load_weights('./checkpoints/my_checkpoint')
+
 loss,acc = model.evaluate(test_images, test_labels)
 print("Restored model, accuracy: {:5.2f}%".format(100*acc))
-
