@@ -16,6 +16,7 @@ test_labels = test_labels[:1000]
 train_images = train_images[:1000].reshape(-1, 28 * 28) / 255.0
 test_images = test_images[:1000].reshape(-1, 28 * 28) / 255.0
 
+
 # Define a model
 # Returns a short sequential model
 def create_model():
@@ -35,4 +36,30 @@ def create_model():
 # Create a basic model instance
 model = create_model()
 model.summary()
+
+# Save checkpoints during training
+checkpoint_path = "training_1/cp.ckpt"
+checkpoint_dir = os.path.dirname(checkpoint_path)
+
+# Create checkpoint callback
+cp_callback = tf.keras.callbacks.ModelCheckpoint(checkpoint_path,
+                                                 save_weights_only=True,
+                                                 verbose=1)
+
+model = create_model()
+
+model.fit(train_images, train_labels, epochs=10,
+          validation_data=(test_images, test_labels),
+          callbacks=[cp_callback])  # pass callback to training
+
+# Untrained model
+model = create_model()
+
+loss, acc = model.evaluate(test_images, test_labels)
+print("Untrained model, accuracy: {:5.2f}%".format(100*acc))
+
+# Load weights
+model.load_weights(checkpoint_path)
+loss,acc = model.evaluate(test_images, test_labels)
+print("Restored model, accuracy: {:5.2f}%".format(100*acc))
 
