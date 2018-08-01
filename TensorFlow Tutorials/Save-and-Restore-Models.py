@@ -103,3 +103,20 @@ model.load_weights('./checkpoints/my_checkpoint')
 
 loss,acc = model.evaluate(test_images, test_labels)
 print("Restored model, accuracy: {:5.2f}%".format(100*acc))
+
+# Save the entire model
+model = create_model()
+
+model.fit(train_images, train_labels, epochs=5)
+
+# Save entire model to a HDF5 file
+model.save('my_model.h5')
+
+# Create model from saved file
+# Recreate the exact same model, including weights and optimizer.
+new_model = keras.models.load_model('my_model.h5')
+new_model.summary()
+
+# Check accuracy
+loss, acc = new_model.evaluate(test_images, test_labels)
+print("Restored model, accuracy: {:5.2f}%".format(100*acc))
